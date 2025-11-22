@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Joke Of The Day</title>
+    <style>
+body {
+    background-color: lightgray;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+
+header {
+    padding: 20px 0;
+}
+
+#displayjoke {
+    background: white;
+    margin: 30px auto;
+    padding: 20px;
+    max-width: 700px;
+    border-radius: 10px;
+}
+
+#joke {
+    font-size: 1.2rem;
+}
+
+#buttons h2 {
+    margin-top: 40px;
+    font-size: 1.3rem;
+}
+
+.jokebutton {
+    margin-top: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    border: none;
+    background-color: black;
+    color: white;
+    border-radius: 6px;
+}
+
+button:hover {
+    background-color: red;
+}
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1 id="title">Joke Of The Day</h1>
+    </header>
+
+    <main>
+        <section id="displayjoke">
+            <p id="joke">Your joke is loading</p>
+        </section>
+
+        <section id="buttons">
+            <h2>Generate A New Random Joke By Category</h2>
+            <div class="jokebutton">
+                <button data-category="Programming">Programming</button>
+                <button data-category="Miscellaneous">Miscellaneous</button>
+                <button data-category="Pun">Pun</button>
+                <button data-category="Spooky">Spooky</button>
+                <button data-category="Christmas">Christmas</button>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const jokeText = document.getElementById('joke');
+        const pageTitle = document.getElementById('title');
+
+        async function fetchJoke(category = 'Any') {
+            try {
+                const url = category === 'Any'
+                    ? 'https://v2.jokeapi.dev/joke/Any?safe-mode'
+                    : `https://v2.jokeapi.dev/joke/${category}?safe-mode`;
+
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.error) {
+                    jokeText.textContent = 'No matching joke found';
+                    return;
+                }
+
+                const joke = data.type === 'single'
+                    ? data.joke
+                    : `${data.setup} ... ${data.delivery}`;
+
+                jokeText.textContent = joke;
+
+                if (category === 'Any') {
+                    pageTitle.textContent = 'Joke Of The Day';
+                } else if (category === 'Pun') {
+                    pageTitle.textContent = 'A Random Pun';
+                } else {
+                    pageTitle.textContent = `A Random ${category} Joke`;
+                }
+
+            } catch (error) {
+                jokeText.textContent = 'Error while finalizing joke filtering: No jokes were found that match your provided filter(s)';
+            }
+        }
+        window.addEventListener('load', () => fetchJoke('Any'));
+        document.querySelectorAll('#buttons button').forEach(button => {
+    button.addEventListener('click', () => {
+        const cat = button.dataset.category;
+        fetchJoke(cat);
+            });
+        });
+    </script>
+</body>
+</html>
